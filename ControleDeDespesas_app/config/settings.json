@@ -1,0 +1,7 @@
+{
+    "alerta_alto_valor": 500.00,
+    "meses_comparativo": 3,
+    "meta_economia_percentual": 15.0,
+    "caminho_banco_dados": "financas.db",
+    "moeda": "BRL"
+}
