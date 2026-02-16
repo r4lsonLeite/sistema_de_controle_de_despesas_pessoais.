@@ -1,3 +1,4 @@
+
 CREATE TABLE USUARIOS (
     ID_Usuario SERIAL PRIMARY KEY,
     Nome VARCHAR(100) NOT NULL,
@@ -10,6 +11,7 @@ CREATE TABLE CATEGORIAS (
     Nome_Categoria VARCHAR(50) NOT NULL,
     Icone VARCHAR(50)
 );
+
 CREATE TABLE CONTAS (
     ID_Conta SERIAL PRIMARY KEY,
     Nome_Conta VARCHAR(50) NOT NULL,
@@ -18,47 +20,50 @@ CREATE TABLE CONTAS (
     ID_Usuario_FK INTEGER NOT NULL,
     CONSTRAINT fk_usuario_conta FOREIGN KEY (ID_Usuario_FK) REFERENCES USUARIOS(ID_Usuario) ON DELETE CASCADE
 );
+
 CREATE TABLE TRANSACOES (
     ID_Transacao SERIAL PRIMARY KEY,
     Data_Transacao DATE NOT NULL DEFAULT CURRENT_DATE,
-    Valor DECIMAL(10, 2) NOT NULL,
+    
+    Valor DECIMAL(10, 2) NOT NULL CHECK (Valor > 0), 
     Descricao TEXT,
     Tipo_Transacao VARCHAR(10) CHECK (Tipo_Transacao IN ('RECEITA', 'DESPESA')),
     ID_Conta_FK INTEGER NOT NULL,
     ID_Categoria_FK INTEGER NOT NULL,
     CONSTRAINT fk_conta_transacao FOREIGN KEY (ID_Conta_FK) REFERENCES CONTAS(ID_Conta) ON DELETE CASCADE,
-    CONSTRAINT fk_categoria_transacao FOREIGN KEY (ID_Categoria_FK) REFERENCES CATEGORIAS(ID_Categoria)
+   
+    CONSTRAINT fk_categoria_transacao FOREIGN KEY (ID_Categoria_FK) REFERENCES CATEGORIAS(ID_Categoria) ON DELETE RESTRICT
 );
 
-CREATE INDEX idx_transacao_data ON TRANSACOES(Data_Transacao);
-CREATE INDEX idx_transacao_usuario ON CONTAS(ID_Usuario_FK);
 
--- 1. Inserir um Usuário
+CREATE INDEX idx_transacao_data ON TRANSACOES(Data_Transacao);
+CREATE INDEX idx_transacao_id_conta ON TRANSACOES(ID_Conta_FK); 
+
+
 INSERT INTO USUARIOS (Nome, Email, Senha) 
 VALUES ('Ana Silva', 'ana@email.com', 'senha_segura_hash_123');
 
--- 2. Inserir Categorias Básicas
+
 INSERT INTO CATEGORIAS (Nome_Categoria, Icone) VALUES 
 ('Alimentação', 'icon-food'),
 ('Salário', 'icon-money'),
 ('Lazer', 'icon-fun'),
 ('Transporte', 'icon-bus');
 
--- 3. Inserir Contas para a Ana (Assumindo ID 1)
 INSERT INTO CONTAS (Nome_Conta, Tipo_Conta, Saldo_Atual, ID_Usuario_FK) VALUES 
 ('Nubank', 'Corrente', 0.00, 1),
 ('Carteira', 'Dinheiro', 0.00, 1);
 
--- 4. Inserir Transações
--- Entrada de Salário (Receita) na conta Nubank (ID 1)
+
+-- Entrada de Salário (Receita) na conta Nubank 
 INSERT INTO TRANSACOES (Valor, Descricao, Tipo_Transacao, ID_Conta_FK, ID_Categoria_FK) 
 VALUES (3500.00, 'Salário Mensal', 'RECEITA', 1, 2);
 
--- Gasto com Mercado (Despesa) na conta Nubank (ID 1)
+
 INSERT INTO TRANSACOES (Valor, Descricao, Tipo_Transacao, ID_Conta_FK, ID_Categoria_FK) 
 VALUES (450.50, 'Compras da Semana', 'DESPESA', 1, 1);
 
--- Gasto com Uber (Despesa) no Cartão/Conta Nubank (ID 1)
+-- Gasto com Uber (Despesa) no Cartão/Conta Nubank
 INSERT INTO TRANSACOES (Valor, Descricao, Tipo_Transacao, ID_Conta_FK, ID_Categoria_FK) 
 VALUES (25.90, 'Uber para o trabalho', 'DESPESA', 1, 4);
 
@@ -96,9 +101,9 @@ INSERT INTO CONTAS (Nome_Conta, Tipo_Conta, Saldo_Atual, ID_Usuario_FK) VALUES
 ('Itaú', 'Corrente', 3200.50, 2),        -- ID: 3 (Conta da Fernanda)
 ('Carteira', 'Dinheiro', 150.00, 3);     -- ID: 4 (Conta do Roberto)
 
--- --------------------------------------------------------
+
 -- 4. Inserindo TRANSACOES
--- --------------------------------------------------------
+
 -- Transações do Carlos (ID 1)
 INSERT INTO TRANSACOES (Valor, Descricao, Tipo_Transacao, ID_Conta_FK, ID_Categoria_FK) VALUES 
 (4500.00, 'Salário Mensal', 'RECEITA', 1, 2),
